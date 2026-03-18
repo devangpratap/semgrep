@@ -23,6 +23,15 @@ ALLOWED_EXTENSIONS = {
     ".java",
     ".sql",
     ".json",
+    ".js",
+    ".ts",
+    ".go",
+    ".rs",
+    ".c",
+    ".cpp",
+    ".h",
+    ".yaml",
+    ".yml",
 }
 
 # Directories to ignore while walking the filesystem.
@@ -45,3 +54,8 @@ CANDIDATE_CHUNK_LIMIT = 20
 
 # Where to store any cached index/embeddings (later if we want).
 DATA_DIR = Path("data")
+
+# ---- Ollama settings ----
+
+# Ollama API base URL. Override this if running Ollama on a non-default host/port.
+OLLAMA_BASE_URL = "http://localhost:11434"

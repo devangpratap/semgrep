@@ -11,12 +11,12 @@ from pathlib import Path
 from typing import List, Optional
 from dataclasses import dataclass
 
-from config import MODEL_NAME, DATA_DIR
+from config import MODEL_NAME, DATA_DIR, OLLAMA_BASE_URL
 from indexer import Chunk
 
 
 # Ollama API endpoint for embeddings
-OLLAMA_EMBED_URL = "http://localhost:11434/api/embeddings"
+OLLAMA_EMBED_URL = f"{OLLAMA_BASE_URL}/api/embeddings"
 
 # Cache file path
 CACHE_FILE = DATA_DIR / "embedding_cache.json"
