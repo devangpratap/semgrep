@@ -1,4 +1,4 @@
-# Semantic Grep
+# Codeseek
 
 A local semantic search tool for your codebase. Instead of matching exact strings like regular grep, this uses a locally running LLM (Ollama with llama3.2) to understand what you mean and find relevant code/text.
 
