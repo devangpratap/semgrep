@@ -1,6 +1,6 @@
 # main.py
 #
-# CLI entry point for Semantic Grep.
+# CLI entry point for Codeseek.
 # Index files, embed chunks, and search with natural language queries.
 
 import argparse
@@ -12,7 +12,7 @@ from search import search, format_results
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Semantic Grep (local) - MVP")
+    parser = argparse.ArgumentParser(description="Codeseek - local semantic code search")
     parser.add_argument(
         "query",
         nargs="?",
@@ -51,7 +51,7 @@ def main():
         print("\nNo query provided. Enter a query (or 'quit' to exit):\n")
         while True:
             try:
-                query = input("semgrep> ").strip()
+                query = input("codeseek> ").strip()
             except (EOFError, KeyboardInterrupt):
                 print("\nBye.")
                 break

@@ -1,6 +1,6 @@
 # config.py
 #
-# Global settings for the Semantic Grep Engine.
+# Global settings for the Codeseek Engine.
 
 from pathlib import Path
 
