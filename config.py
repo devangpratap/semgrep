@@ -46,8 +46,20 @@ IGNORE_DIRS = {
 # Maximum file size (in bytes) to read.
 MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024  # 5 MB
 
-# How many lines to group into one chunk.
+# How many lines to group into one chunk (used as fallback when AST parsing fails).
 CHUNK_LINE_COUNT = 40
+
+# ---- AST chunking settings ----
+
+# Enable AST-based chunking for supported file types.
+# When enabled, functions/classes are extracted as individual chunks.
+# Falls back to line-based chunking if parsing fails.
+AST_ENABLED = True
+
+# File extensions that support AST-based parsing.
+AST_EXTENSIONS = {
+    ".py",
+}
 
 # How many top chunks to keep before sending anything to the LLM.
 CANDIDATE_CHUNK_LIMIT = 20

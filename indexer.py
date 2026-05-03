@@ -1,7 +1,7 @@
 # indexer.py
 #
 # Walk the filesystem, filter useful files, and split them into text chunks.
-# No AI here — this is just smart file parsing.
+# Uses AST-based parsing for supported languages, falls back to line-based chunking.
 
 import os
 from pathlib import Path
@@ -14,6 +14,8 @@ from config import (
     IGNORE_DIRS,
     MAX_FILE_SIZE_BYTES,
     CHUNK_LINE_COUNT,
+    AST_ENABLED,
+    AST_EXTENSIONS,
 )
 
 
@@ -50,29 +52,65 @@ def iter_files(root: Path | None = None):
 
 def read_file_chunks(path: Path) -> List[Chunk]:
     """
-    Read a file, split into CHUNK_LINE_COUNT-line chunks,
-    attach line numbers for better search results.
+    Read a file and split into chunks.
+    Uses AST-based parsing for supported languages if enabled,
+    falls back to line-based chunking otherwise.
     """
     chunks: List[Chunk] = []
 
     try:
-        # skip massive files (logs, binaries, etc.)
         if path.stat().st_size > MAX_FILE_SIZE_BYTES:
             return chunks
 
         with path.open("r", encoding="utf-8", errors="ignore") as f:
-            lines = f.readlines()
+            source = f.read()
     except Exception:
         return chunks
 
-    if not lines:
+    if not source.strip():
         return chunks
 
+    # Try AST-based chunking for supported file types
+    if AST_ENABLED and path.suffix in AST_EXTENSIONS:
+        ast_chunks = _try_ast_chunking(path, source)
+        if ast_chunks:
+            return ast_chunks
+
+    # Fallback: line-based chunking
+    return _line_based_chunking(path, source)
+
+
+def _try_ast_chunking(path: Path, source: str) -> List[Chunk]:
+    """Attempt AST-based chunking. Returns empty list on failure."""
+    if path.suffix == ".py":
+        from ast_parser import parse_python_file, extract_top_level_code
+
+        chunks = []
+
+        # Get function/class chunks
+        ast_chunks = parse_python_file(path, source)
+        if ast_chunks:
+            chunks.extend(ast_chunks)
+
+        # Get module-level code (imports, constants, etc.)
+        top_level = extract_top_level_code(path, source)
+        if top_level:
+            chunks.append(top_level)
+
+        return chunks
+
+    return []
+
+
+def _line_based_chunking(path: Path, source: str) -> List[Chunk]:
+    """Original line-based chunking as fallback."""
+    chunks: List[Chunk] = []
+    lines = source.splitlines(keepends=True)
     total = len(lines)
     i = 0
 
     while i < total:
-        start = i + 1          # 1-based line numbering
+        start = i + 1
         end_index = min(i + CHUNK_LINE_COUNT, total)
         end = end_index
 
