@@ -105,17 +105,28 @@ def format_results(results: List[SearchResult]) -> str:
 
     for i, result in enumerate(results, 1):
         chunk = result.chunk
-        lines.append(
-            f"\n[{i}] {chunk.file_path} "
-            f"(lines {chunk.start_line}-{chunk.end_line}) "
-            f"[score: {result.score:.4f}]"
-        )
+        # Extract symbol tag if present (from AST chunks)
+        symbol_tag = ""
+        first_line = chunk.text.split("\n", 1)[0]
+        if first_line.startswith("# [") and "]" in first_line:
+            symbol_tag = first_line[2:]  # e.g. "[function] my_func"
+
+        location = f"{chunk.file_path} (lines {chunk.start_line}-{chunk.end_line})"
+        header = f"\n[{i}] {location} [score: {result.score:.4f}]"
+        if symbol_tag:
+            header += f"  {symbol_tag}"
+
+        lines.append(header)
         lines.append("-" * 60)
 
-        # Show a preview of the chunk (first 5 lines)
-        preview_lines = chunk.text.split("\n")[:5]
+        # Show a preview of the chunk (skip the context prefix line for AST chunks)
+        text_lines = chunk.text.split("\n")
+        if text_lines and text_lines[0].startswith("# ["):
+            text_lines = text_lines[1:]
+
+        preview_lines = text_lines[:8]
         preview = "\n".join(preview_lines)
-        if len(chunk.text.split("\n")) > 5:
+        if len(text_lines) > 8:
             preview += "\n..."
 
         lines.append(preview)
