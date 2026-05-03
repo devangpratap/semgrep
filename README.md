@@ -4,9 +4,12 @@ A local semantic search tool for your codebase. Instead of matching exact string
 
 ## How it works
 
-1. **Indexer** scans your project files and splits them into chunks
-2. **Embedding** generates vector embeddings for each chunk using Ollama
-3. **Search** compares your natural language query against all chunks using cosine similarity and returns the best matches
+1. **Indexer** scans your project files and splits them into semantically meaningful chunks
+2. **AST Parser** (for Python files) extracts functions, classes, and methods as individual chunks — no more cutting code in half
+3. **Embedding** generates vector embeddings for each chunk using Ollama
+4. **Search** compares your natural language query against all chunks using cosine similarity and returns the best matches
+
+For non-Python files (or files with syntax errors), the indexer falls back to line-based chunking.
 
 ## Requirements
 
@@ -37,8 +40,9 @@ python main.py -d /path/to/project
 
 ## Project structure
 
-- `config.py` — settings (model name, allowed file types, chunk size, etc.)
-- `indexer.py` — file walking and chunking
+- `config.py` — settings (model name, allowed file types, chunk size, AST toggle, etc.)
+- `indexer.py` — file walking, AST-aware chunking with line-based fallback
+- `ast_parser.py` — Python AST extraction (functions, classes, module-level code)
 - `embedding.py` — Ollama embedding generation
 - `search.py` — cosine similarity search and result formatting
 - `main.py` — CLI entry point
