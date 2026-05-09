@@ -87,13 +87,26 @@ def _try_ast_chunking(path: Path, source: str) -> List[Chunk]:
 
         chunks = []
 
-        # Get function/class chunks
         ast_chunks = parse_python_file(path, source)
         if ast_chunks:
             chunks.extend(ast_chunks)
 
-        # Get module-level code (imports, constants, etc.)
         top_level = extract_top_level_code(path, source)
+        if top_level:
+            chunks.append(top_level)
+
+        return chunks
+
+    if path.suffix in (".js", ".ts"):
+        from js_parser import parse_js_file, extract_js_top_level
+
+        chunks = []
+
+        js_chunks = parse_js_file(path, source)
+        if js_chunks:
+            chunks.extend(js_chunks)
+
+        top_level = extract_js_top_level(path, source)
         if top_level:
             chunks.append(top_level)
 

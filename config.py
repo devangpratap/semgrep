@@ -59,6 +59,8 @@ AST_ENABLED = True
 # File extensions that support AST-based parsing.
 AST_EXTENSIONS = {
     ".py",
+    ".js",
+    ".ts",
 }
 
 # How many top chunks to keep before sending anything to the LLM.
