@@ -30,6 +30,11 @@ def main():
         default=10,
         help="Number of results to show (default: 10)",
     )
+    parser.add_argument(
+        "--stats",
+        action="store_true",
+        help="Show indexing statistics (chunk counts by file type and method)",
+    )
     args = parser.parse_args()
 
     root = Path(args.dir).resolve()
@@ -44,6 +49,10 @@ def main():
 
     if not chunks:
         print("No files found to index.")
+        return
+
+    if args.stats:
+        print_stats(chunks)
         return
 
     # If no query given, enter interactive mode
@@ -63,6 +72,30 @@ def main():
             run_search(query, chunks, args.results)
     else:
         run_search(args.query, chunks, args.results)
+
+
+def print_stats(chunks):
+    """Show chunk breakdown by file extension and parsing method."""
+    from collections import Counter
+
+    ext_counts = Counter()
+    ast_counts = Counter()
+    line_counts = Counter()
+
+    for c in chunks:
+        ext = c.file_path.suffix
+        ext_counts[ext] += 1
+        if c.text.startswith("# ["):
+            ast_counts[ext] += 1
+        else:
+            line_counts[ext] += 1
+
+    print(f"\n{'Extension':<12} {'Total':<8} {'AST':<8} {'Line-based':<10}")
+    print("-" * 40)
+    for ext in sorted(ext_counts):
+        print(f"{ext:<12} {ext_counts[ext]:<8} {ast_counts.get(ext, 0):<8} {line_counts.get(ext, 0):<10}")
+    print("-" * 40)
+    print(f"{'Total':<12} {sum(ext_counts.values()):<8} {sum(ast_counts.values()):<8} {sum(line_counts.values()):<10}")
 
 
 def run_search(query: str, chunks, top_k: int):
